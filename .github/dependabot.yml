@@ -5,7 +5,8 @@ updates:
     schedule:
       interval: daily
 
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: daily
+  # Only for repos with a package.json
+  # - package-ecosystem: npm
+  #   directory: /
+  #   schedule:
+  #     interval: daily
