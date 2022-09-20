@@ -9,3 +9,4 @@
 
 - MIT license under LICENSE.md
 - Check for CODEOWNERS and README.md files workflow under .github/workflows
+- dependabot scheduled to check for npm and Github action updates daily
