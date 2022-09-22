@@ -41,7 +41,7 @@ jobs:
         id: readme_file
         uses: initialstate/file-check-action@v1
         with:
-          file: "README.md"
+          file: "README"
 
       - name: README file Output Test
         run: echo ${{ steps.readme_file.outputs.file_exists }}
@@ -65,7 +65,7 @@ jobs:
         id: license_file
         uses: initialstate/file-check-action@v1
         with:
-          file: "LICENSE.md"
+          file: "LICENSE"
 
       - name: LICENSE file Output Test
         run: echo ${{ steps.license_file.outputs.file_exists }}
