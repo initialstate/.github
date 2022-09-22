@@ -1,4 +1,6 @@
 # .github
+![repo linter workflow](https://github.com/initialstate/.github/actions/workflows/check_essential_files.yml/badge.svg)
+
 
 ## Globally applied templates
 
