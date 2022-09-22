@@ -7,6 +7,7 @@ body:
     attributes:
       value: |
         Upload any images you want to use here by clicking and dragging. Then copy the generated URL to use.
+
   - type: textarea
-  attributes:
-    label: "Drag images here"
+    attributes:
+      label: "Drag images here"
