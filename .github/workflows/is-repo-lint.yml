@@ -54,3 +54,26 @@ jobs:
         if: steps.readme_file.outputs.file_exists == 'false'
         run: echo README file does not exist!
 
+  check-for-license:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Check for LICENSE.md
+        id: license_file
+        uses: initialstate/file-check-action@v1
+        with:
+          file: "LICENSE.md"
+
+      - name: LICENSE file Output Test
+        run: echo ${{ steps.license_file.outputs.file_exists }}
+
+      - name: LICENSE file exists with content
+        if: steps.license_file.outputs.file_exists == 'true'
+        run: echo LICENSE file exists!
+
+      - name: LICENSE file does not exist
+        if: steps.license_file.outputs.file_exists == 'false'
+        run: echo LICENSE file does not exist!
