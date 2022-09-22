@@ -1,3 +1,8 @@
+<img
+  src="/assets/initialstate-wide-large.png"
+  alt="IS logo"
+  width="200px">
+
 # .github
 ![repo linter workflow](https://github.com/initialstate/.github/actions/workflows/is-repo-lint.yml/badge.svg)
 
