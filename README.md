@@ -1,5 +1,8 @@
 <img
-  src="/assets/initialstate-wide-large.png"
+  src="https://theme.tekcloud.com/prod/github/is-logo-light-mode.svg#gh-light-mode-only"
+  alt="IS logo"
+  width="200px"><img
+  src="https://theme.tekcloud.com/prod/github/is-logo-dark-mode.svg#gh-dark-mode-only"
   alt="IS logo"
   width="200px">
 
