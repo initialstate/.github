@@ -115,11 +115,11 @@ jobs:
             run: echo "::set-output name=defined::true"
 
           - name: personal access token exists
-            if: steps.my-key.outputs.my-key == 'true'
+            if: steps.my-key.outputs.defined == 'true'
             run: echo PERSONAL_ACCESS_TOKEN secret IS NOT empty
 
           - name: personal access token does not exist
-            if: steps.my-key.outputs.my-key == 'false'
+            if: steps.my-key.outputs.defined == 'false'
             run: echo PERSONAL_ACCESS_TOKEN secret IS empty
 
   personal-access-token-exists:
