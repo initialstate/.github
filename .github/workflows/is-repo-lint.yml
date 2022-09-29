@@ -77,3 +77,27 @@ jobs:
       - name: LICENSE file does not exist
         if: steps.license_file.outputs.file_exists == 'false'
         run: echo LICENSE file does not exist!
+
+  check-for-dependabot-file:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Check for dependabot.yml
+        id: dependabot_file
+        uses: initialstate/file-check-action@v1
+        with:
+          file: ".github/dependabot.yml"
+
+      - name: dependabot.yml file Output Test
+        run: echo ${{ steps.dependabot_file.outputs.file_exists }}
+
+      - name: dependabot file exists with content
+        if: steps.dependabot_file.outputs.file_exists == 'true'
+        run: echo dependabot file exists!
+
+      - name: dependabot file does not exist
+        if: steps.dependabot_file.outputs.file_exists == 'false'
+        run: echo dependabot file does not exist!
