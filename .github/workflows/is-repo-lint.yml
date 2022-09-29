@@ -104,8 +104,8 @@ jobs:
 
   check-for-personal-access-token:
       runs-on: ubuntu-latest
-      outputs:
-        my-key: ${{ steps.my-key.outputs.defined }}
+      # outputs:
+      #   my-key: ${{ steps.my-key.outputs.defined }}
       steps:
           - name: Check for PERSONAL_ACCESS_TOKEN
             id: my-key
