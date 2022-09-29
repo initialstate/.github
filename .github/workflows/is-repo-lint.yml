@@ -122,16 +122,16 @@ jobs:
             if: steps.my-key.outputs.defined == 'false'
             run: echo PERSONAL_ACCESS_TOKEN secret IS empty
 
-  personal-access-token-exists:
-      runs-on: ubuntu-latest
-      needs: [check-for-personal-access-token]
-      if: needs.check-for-personal-access-token.outputs.my-key == 'true'
-      steps:
-        - run: echo "This command is executed if PERSONAL_ACCESS_TOKEN secret IS NOT empty"
+  # personal-access-token-exists:
+  #     runs-on: ubuntu-latest
+  #     needs: [check-for-personal-access-token]
+  #     if: needs.check-for-personal-access-token.outputs.my-key == 'true'
+  #     steps:
+  #       - run: echo "This command is executed if PERSONAL_ACCESS_TOKEN secret IS NOT empty"
 
-  personal-access-token-does-not-exist:
-      runs-on: ubuntu-latest
-      needs: [check-for-personal-access-token]
-      if: needs.check-for-personal-access-token.outputs.my-key != 'true'
-      steps:
-        - run: echo "This command is executed if PERSONAL_ACCESS_TOKEN secret IS empty"
+  # personal-access-token-does-not-exist:
+  #     runs-on: ubuntu-latest
+  #     needs: [check-for-personal-access-token]
+  #     if: needs.check-for-personal-access-token.outputs.my-key != 'true'
+  #     steps:
+  #       - run: echo "This command is executed if PERSONAL_ACCESS_TOKEN secret IS empty"
