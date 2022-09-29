@@ -104,14 +104,7 @@ jobs:
 
   check-for-personal-access-token:
       runs-on: ubuntu-latest
-      # outputs:
-      #   my-key: ${{ steps.my-key.outputs.defined }}
       steps:
-          # - name: Check for existing PERSONAL_ACCESS_TOKEN
-          #   env:
-          #       MY_KEY: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          #   if: "${{ env.MY_KEY != '' }}"
-          #   run: echo PERSONAL_ACCESS_TOKEN secret exists
 
           - name: Check for missing PERSONAL_ACCESS_TOKEN
             env:
@@ -120,26 +113,4 @@ jobs:
             uses: actions/github-script@v3
             with:
               script: |
-                core.setFailed('PERSONAL_ACCESS_TOKEN secret is missing')
-
-          # - name: personal access token exists
-          #   if: steps.my-key.outputs.defined == 'true'
-          #   run: echo PERSONAL_ACCESS_TOKEN secret IS NOT empty
-
-          # - name: personal access token does not exist
-          #   if: steps.my-key.outputs.defined == 'false'
-          #   run: echo PERSONAL_ACCESS_TOKEN secret IS empty
-
-  # personal-access-token-exists:
-  #     runs-on: ubuntu-latest
-  #     needs: [check-for-personal-access-token]
-  #     if: needs.check-for-personal-access-token.outputs.my-key == 'true'
-  #     steps:
-  #       - run: echo "This command is executed if PERSONAL_ACCESS_TOKEN secret IS NOT empty"
-
-  # personal-access-token-does-not-exist:
-  #     runs-on: ubuntu-latest
-  #     needs: [check-for-personal-access-token]
-  #     if: needs.check-for-personal-access-token.outputs.my-key != 'true'
-  #     steps:
-  #       - run: echo "This command is executed if PERSONAL_ACCESS_TOKEN secret IS empty"
+                core.setFailed('PERSONAL_ACCESS_TOKEN secret is missing. It is needed to successfully run the CLA assistant.')
