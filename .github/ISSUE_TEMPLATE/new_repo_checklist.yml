@@ -1,0 +1,18 @@
+name: ✅New Repository Checklist
+description: New repositories should complete this checklist
+title: "[CHECKLIST]: NEW REPOSITORY SETTINGS"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Congrats on creating a new repository! Please make sure your new repo meets these requirements.
+
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      description: |
+        - [x] #739
+        - [ ] https://github.com/octo-org/octo-repo/issues/740
+        - [ ] Add delight to the experience when all tasks are complete :tada:
