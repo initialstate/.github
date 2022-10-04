@@ -7,6 +7,7 @@
 # .github
 ![repo linter workflow](https://github.com/initialstate/.github/actions/workflows/is-repo-lint.yml/badge.svg)
 
+A special repository specifically for global templates and files.
 
 ## Globally applied templates
 
