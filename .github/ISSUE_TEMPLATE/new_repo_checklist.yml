@@ -22,7 +22,7 @@ body:
         - label: Repo Lint Action
         - label: CLA Assistant
         - label: CodeScan
-        - label: "About" description with topics
+        - label: About description with topics
         
   - type: markdown
     attributes:
