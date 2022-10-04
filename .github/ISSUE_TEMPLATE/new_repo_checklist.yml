@@ -23,3 +23,8 @@ body:
         - label: CLA Assistant
         - label: CodeScan
         - label: Topics
+        
+   - type: markdown
+    attributes:
+      value: |
+        If you weren't able to check all of the boxes, please see the [best practices documentation](https://github.com/initialstate/best-practice-resources) for detailed instructions on how to add each requirement.
