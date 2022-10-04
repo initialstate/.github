@@ -20,4 +20,4 @@ Issue templates made here will appear as options when creating an issue on any *
 
 ## Repository Checklist
 
-The `repo_checklist.yml` template is meant to be used as a way to create checklists on newly created repositories when setting them up. Any new workflows/requirements should be added to that checklist.
+The `new_repo_checklist.yml` template is meant to be used as a way to create checklists on newly created repositories when setting them up. Any new workflows/requirements should be added to that checklist.
