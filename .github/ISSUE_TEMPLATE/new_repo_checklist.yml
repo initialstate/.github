@@ -8,16 +8,18 @@ body:
       value: |
         Congrats on creating a new repository! Please make sure your new repo meets these requirements.
 
-  - type: markdown
+  - type: checkboxes
+    id: repo-items
     attributes:
-      value: |
-        - [x] #739
-        - [ ] https://github.com/octo-org/octo-repo/issues/740
-        - [ ] Add delight to the experience when all tasks are complete :tada:
-
-  - type: textarea
-    attributes:
-      label: Current Behavior
-      description: A concise description of what you're experiencing.
-    validations:
-      required: false
+      label: Have you added any of the following to your repo yet?
+      description: You may select more than one.
+      options:
+        - label: README that follows guidelines
+        - label: LICENSE
+        - label: Global Codeowner
+        - label: Branch Protection
+        - label: dependabot
+        - label: Repo Lint Action
+        - label: CLA Assistant
+        - label: CodeScan
+        - label: Topics
