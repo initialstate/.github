@@ -12,3 +12,4 @@
 
 - Bug reports/Feature requests under .github/ISSUE_TEMPLATE
 - Code of conduct under CODE_OF_CONDUCT.md
+- Organization profile under profile/README.md
