@@ -14,7 +14,7 @@ body:
       label: Have you added any of the following to your repo yet?
       description: You may select more than one. Click on each for more information.
       options:
-        - label: [README that follows guidelines](https://github.com/initialstate/best-practice-resources/blob/master/README-templates)
+        - label: README that follows guidelines <https://github.com/initialstate/best-practice-resources/blob/master/README-templates>
 
   - type: markdown
     attributes:
