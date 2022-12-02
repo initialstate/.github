@@ -5,14 +5,37 @@ on:
   pull_request_target:
     types: [opened,closed,synchronize]
 
+# select correct state for repository
+env:
+  # state: private
+  state: public
+
 jobs:
+  public-or-private-repo:
+    runs-on: ubuntu-latest
+    outputs:
+      repostate: ${{ steps.repo-state.outputs.repostate }}
+    steps:
+
+      - name: Repo state
+        id: repo-state
+        run: echo "repostate=${{env.state}}" >> $GITHUB_OUTPUT
+      - name: Repo public?
+        if: "${{ env.state == 'public' }}"
+        run: echo "Workflow has repo set as public. If this is incorrect, uncomment line 10."
+      - name: Repo private?
+        if: "${{ env.state == 'private' }}"
+        run: echo "Workflow has repo set as private. If this is incorrect, uncomment line 11."
+
   CLAssistant:
+    needs: public-or-private-repo
+    if: needs.public-or-private-repo.outputs.repostate == 'public'
     runs-on: ubuntu-latest
     steps:
       - name: "CLA Assistant"
         if: (github.event.comment.body == 'recheck' || github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA') || github.event_name == 'pull_request_target'
         # Beta Release
-        uses: contributor-assistant/github-action@v2.2.0
+        uses: contributor-assistant/github-action@v2.2.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # the below token should have repo scope and must be manually added by you in the repository's secret
