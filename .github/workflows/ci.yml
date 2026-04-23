@@ -111,13 +111,9 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        # Replace with `npm run test` once vitest is added
-        run: |
-          if npm run test --if-present 2>&1 | grep -q "Missing script"; then
-            echo "No test script found — skipping tests (add vitest to unlock this check)"
-          else
-            npm run test
-          fi
+        # --if-present is a no-op exit-0 when the script doesn't exist.
+        # Add `npm run test` (vitest etc.) to unlock this check.
+        run: npm run test --if-present
 
   # ── CDK Diff (PR only) ────────────────────────────────────────────────────
   cdk-diff:
@@ -142,6 +138,13 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ inputs.app-name }}-${{ inputs.diff-environment }}-deployer
           aws-region: ${{ inputs.aws-region }}
+
+      - name: Configure git for private org repos (lib-infra, etc.)
+        # Rewrites https://github.com/ URLs to authenticate with a PAT that has
+        # read access to private initialstate repos. The PAT is an org-level
+        # secret named LIB_INFRA_READ_TOKEN (configure in GitHub org settings).
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.LIB_INFRA_READ_TOKEN }}@github.com/".insteadOf "https://github.com/"
 
       - name: Install app dependencies
         run: npm ci

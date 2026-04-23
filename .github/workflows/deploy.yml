@@ -62,6 +62,13 @@ jobs:
           role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ inputs.app-name }}-${{ inputs.environment }}-deployer
           aws-region: ${{ inputs.aws-region }}
 
+      - name: Configure git for private org repos (lib-infra, etc.)
+        # Rewrites https://github.com/ URLs to authenticate with a PAT that has
+        # read access to private initialstate repos. The PAT is an org-level
+        # secret named LIB_INFRA_READ_TOKEN (configure in GitHub org settings).
+        run: |
+          git config --global url."https://x-access-token:${{ secrets.LIB_INFRA_READ_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
       - name: Install app dependencies
         run: npm ci
 
