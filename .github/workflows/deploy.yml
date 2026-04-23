@@ -1,0 +1,77 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# FILE: initialstate/.github/.github/workflows/deploy.yml
+#
+# Reusable deploy workflow: OIDC auth → CDK deploy for a single environment.
+# The GitHub Environment named by `environment` input enforces approval gates.
+#
+# Callers: `.github/workflows/deploy.yml` in any initialstate repo.
+# ─────────────────────────────────────────────────────────────────────────────
+name: Deploy (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment (dev | stage | prod)'
+        type: string
+        required: true
+      app-name:
+        description: 'Application name — used to construct the OIDC role name'
+        type: string
+        required: true
+      aws-account-id:
+        description: 'AWS account ID'
+        type: string
+        required: true
+      aws-region:
+        description: 'AWS region'
+        type: string
+        default: 'us-east-1'
+      node-version:
+        description: 'Node.js version'
+        type: string
+        default: '20'
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    # The `environment` key is what enforces the GitHub Environment approval gate.
+    # Without it, the OIDC subject claim won't match the deployer role's trust policy
+    # and credential assumption will fail with an auth error — the gate is enforced
+    # at the IAM level even if the GitHub Environment rules are bypassed.
+    environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write    # Required for OIDC token exchange
+      contents: read
+      deployments: write # GitHub Deployment status updates
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Role naming convention: {app-name}-{environment}-deployer
+          # Created by BruceSvelteDeployerRolesStack (or equivalent in your repo)
+          role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ inputs.app-name }}-${{ inputs.environment }}-deployer
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Install infra dependencies
+        working-directory: infra
+        run: npm ci
+
+      - name: CDK Deploy
+        working-directory: infra
+        run: ENVIRONMENT=${{ inputs.environment }} npm run app:deploy
+        env:
+          # Passed through for CDK context lookups that need AWS access
+          AWS_REGION: ${{ inputs.aws-region }}

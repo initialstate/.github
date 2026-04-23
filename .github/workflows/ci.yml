@@ -1,0 +1,209 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# FILE: initialstate/.github/.github/workflows/ci.yml
+#
+# Reusable CI workflow for SvelteKit + CDK repos.
+# Callers: `.github/workflows/ci.yml` in any initialstate repo.
+# ─────────────────────────────────────────────────────────────────────────────
+name: CI (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node.js version to use'
+        type: string
+        default: '20'
+      aws-account-id:
+        description: 'AWS account ID (for CDK diff OIDC role)'
+        type: string
+        required: true
+      aws-region:
+        description: 'AWS region'
+        type: string
+        default: 'us-east-1'
+      app-name:
+        description: 'Application name (e.g. bruce-svelte) used to construct role name'
+        type: string
+        required: true
+      diff-environment:
+        description: 'CDK environment to diff on PRs'
+        type: string
+        default: 'dev'
+      run-cdk-diff:
+        description: 'Run CDK diff on PRs and post as comment'
+        type: boolean
+        default: true
+
+jobs:
+  # ── Type check ────────────────────────────────────────────────────────────
+  type-check:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Svelte type check
+        run: npm run check
+
+  # ── Build ─────────────────────────────────────────────────────────────────
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+  # ── Lint (optional — activate once eslint is configured) ─────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        # Replace with `npm run lint` once an eslint config is added to the repo
+        run: |
+          if [ -f ".eslintrc*" ] || [ -f "eslint.config*" ]; then
+            npm run lint
+          else
+            echo "No eslint config found — skipping lint (add eslint to unlock this check)"
+          fi
+
+  # ── Test (optional — activate once vitest is configured) ─────────────────
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        # Replace with `npm run test` once vitest is added
+        run: |
+          if npm run test --if-present 2>&1 | grep -q "Missing script"; then
+            echo "No test script found — skipping tests (add vitest to unlock this check)"
+          else
+            npm run test
+          fi
+
+  # ── CDK Diff (PR only) ────────────────────────────────────────────────────
+  cdk-diff:
+    name: CDK Diff (${{ inputs.diff-environment }})
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' && inputs.run-cdk-diff }}
+    permissions:
+      id-token: write    # Required for OIDC
+      contents: read
+      pull-requests: write  # Required to post PR comment
+    environment: ${{ inputs.diff-environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ inputs.app-name }}-${{ inputs.diff-environment }}-deployer
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Install infra dependencies
+        working-directory: infra
+        run: npm ci
+
+      - name: CDK Diff
+        id: diff
+        working-directory: infra
+        # Capture output even if diff exits non-zero (it does when there are changes)
+        run: |
+          set +e
+          DIFF_OUTPUT=$(ENVIRONMENT=${{ inputs.diff-environment }} npm run app:diff 2>&1)
+          EXIT_CODE=$?
+          echo "diff_output<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$DIFF_OUTPUT" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "has_changes=$( [ $EXIT_CODE -ne 0 ] && echo 'true' || echo 'false' )" >> "$GITHUB_OUTPUT"
+
+      - name: Post CDK diff comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const diff = `${{ steps.diff.outputs.diff_output }}`;
+            const hasChanges = `${{ steps.diff.outputs.has_changes }}` === 'true';
+            const icon = hasChanges ? '⚠️' : '✅';
+            const body = [
+              `## ${icon} CDK Diff — \`${{ inputs.diff-environment }}\``,
+              '',
+              '```',
+              diff.slice(0, 60000), // GitHub comment limit guard
+              '```',
+              '',
+              hasChanges
+                ? '_Infrastructure changes detected. Review before merging._'
+                : '_No infrastructure changes._',
+            ].join('\n');
+
+            // Update existing comment if present, otherwise create
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existingComment = comments.find(c =>
+              c.user?.type === 'Bot' && c.body?.startsWith('## ') && c.body.includes('CDK Diff')
+            );
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
