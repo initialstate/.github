@@ -33,12 +33,17 @@ on:
         description: 'Run CDK diff on PRs and post as comment'
         type: boolean
         default: true
+      strict-checks:
+        description: 'If false, type-check and build failures do not fail the workflow. Intended for repos with in-progress code migrations where CI should report but not block.'
+        type: boolean
+        default: true
 
 jobs:
   # ── Type check ────────────────────────────────────────────────────────────
   type-check:
     name: Type Check
     runs-on: ubuntu-latest
+    continue-on-error: ${{ !inputs.strict-checks }}
     steps:
       - uses: actions/checkout@v4
 
@@ -57,6 +62,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    continue-on-error: ${{ !inputs.strict-checks }}
     steps:
       - uses: actions/checkout@v4
 
@@ -119,6 +125,7 @@ jobs:
   cdk-diff:
     name: CDK Diff (${{ inputs.diff-environment }})
     runs-on: ubuntu-latest
+    continue-on-error: ${{ !inputs.strict-checks }}
     if: ${{ github.event_name == 'pull_request' && inputs.run-cdk-diff }}
     permissions:
       id-token: write    # Required for OIDC
