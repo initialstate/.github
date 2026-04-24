@@ -62,29 +62,12 @@ jobs:
           role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ inputs.app-name }}-${{ inputs.environment }}-deployer
           aws-region: ${{ inputs.aws-region }}
 
-      - name: Configure npm auth for GitHub tarball downloads
-        # Private lib-infra (and any other private org deps) is installed via
-        # `github:` shorthand, which downloads a tarball from codeload.github.com.
-        # The PAT is an org-level secret with contents:read on initialstate/lib-infra.
-        run: |
-          cat > ~/.npmrc <<'EOF'
-          //codeload.github.com/:_authToken=${NPM_GITHUB_TOKEN}
-          //api.github.com/:_authToken=${NPM_GITHUB_TOKEN}
-          EOF
-          chmod 600 ~/.npmrc
-        env:
-          NPM_GITHUB_TOKEN: ${{ secrets.LIB_INFRA_READ_TOKEN }}
-
       - name: Install app dependencies
         run: npm ci
 
       - name: Install infra dependencies
-        # Using `npm install` (not `npm ci`) intentionally. See ci.yml for the
-        # full explanation — hosted-git-info SSH canonicalization breaks `npm ci`
-        # when devs have SSH keys. lib-infra is pinned to a version tag so
-        # content is stable across runs.
         working-directory: infra
-        run: npm install --no-audit --no-fund
+        run: npm ci
 
       - name: CDK Deploy
         working-directory: infra
