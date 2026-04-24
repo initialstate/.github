@@ -168,13 +168,20 @@ jobs:
 
       - name: Post CDK diff comment
         uses: actions/github-script@v7
+        # Pass data via env so script content is static — avoids JS parser
+        # errors when diff output contains `${...}` (CloudFormation tokens).
+        env:
+          DIFF_OUTPUT: ${{ steps.diff.outputs.diff_output }}
+          HAS_CHANGES: ${{ steps.diff.outputs.has_changes }}
+          DIFF_ENV: ${{ inputs.diff-environment }}
         with:
           script: |
-            const diff = `${{ steps.diff.outputs.diff_output }}`;
-            const hasChanges = `${{ steps.diff.outputs.has_changes }}` === 'true';
+            const diff = process.env.DIFF_OUTPUT || '';
+            const hasChanges = process.env.HAS_CHANGES === 'true';
+            const env = process.env.DIFF_ENV;
             const icon = hasChanges ? '⚠️' : '✅';
             const body = [
-              `## ${icon} CDK Diff — \`${{ inputs.diff-environment }}\``,
+              `## ${icon} CDK Diff — \`${env}\``,
               '',
               '```',
               diff.slice(0, 60000), // GitHub comment limit guard
