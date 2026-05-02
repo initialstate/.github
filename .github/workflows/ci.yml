@@ -167,7 +167,7 @@ jobs:
           echo "has_changes=$( [ $EXIT_CODE -ne 0 ] && echo 'true' || echo 'false' )" >> "$GITHUB_OUTPUT"
 
       - name: Post CDK diff comment
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         # Pass data via env so script content is static — avoids JS parser
         # errors when diff output contains `${...}` (CloudFormation tokens).
         env:
