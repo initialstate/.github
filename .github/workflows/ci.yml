@@ -52,10 +52,16 @@ jobs:
           node-version: ${{ inputs.node-version }}
           cache: 'npm'
 
-      - name: Debug — runner state before npm ci
+      - name: Debug — diagnose npm ci
         run: |
+          echo "::group::tooling"
+          which npm node
+          npm --version
+          node --version
+          echo "::endgroup::"
           echo "::group::pwd + ref"
           pwd
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
           git rev-parse HEAD
           echo "::endgroup::"
           echo "::group::root listing"
@@ -64,10 +70,24 @@ jobs:
           echo "::group::lockfile check"
           if [ -f package-lock.json ]; then
             echo "FOUND package-lock.json ($(wc -c < package-lock.json) bytes)"
-            head -5 package-lock.json
+            echo "stat:"
+            stat package-lock.json
+            echo "first 10 lines:"
+            head -10 package-lock.json
+            echo "lockfileVersion grep:"
+            grep -n '"lockfileVersion"' package-lock.json | head -3
           else
             echo "MISSING package-lock.json"
           fi
+          echo "::endgroup::"
+          echo "::group::npm config (top)"
+          npm config ls -l 2>&1 | head -60
+          echo "::endgroup::"
+          echo "::group::npm-related env"
+          env | grep -iE '^(npm_|node_)' || echo "(no npm/node env vars)"
+          echo "::endgroup::"
+          echo "::group::npm ci --dry-run -d (capture verbose error)"
+          npm ci --dry-run -d 2>&1 | tail -120 || true
           echo "::endgroup::"
 
       - name: Install dependencies
