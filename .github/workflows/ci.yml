@@ -52,6 +52,24 @@ jobs:
           node-version: ${{ inputs.node-version }}
           cache: 'npm'
 
+      - name: Debug — runner state before npm ci
+        run: |
+          echo "::group::pwd + ref"
+          pwd
+          git rev-parse HEAD
+          echo "::endgroup::"
+          echo "::group::root listing"
+          ls -la
+          echo "::endgroup::"
+          echo "::group::lockfile check"
+          if [ -f package-lock.json ]; then
+            echo "FOUND package-lock.json ($(wc -c < package-lock.json) bytes)"
+            head -5 package-lock.json
+          else
+            echo "MISSING package-lock.json"
+          fi
+          echo "::endgroup::"
+
       - name: Install dependencies
         run: npm ci
 
@@ -71,6 +89,24 @@ jobs:
           node-version: ${{ inputs.node-version }}
           cache: 'npm'
 
+      - name: Debug — runner state before npm ci
+        run: |
+          echo "::group::pwd + ref"
+          pwd
+          git rev-parse HEAD
+          echo "::endgroup::"
+          echo "::group::root listing"
+          ls -la
+          echo "::endgroup::"
+          echo "::group::lockfile check"
+          if [ -f package-lock.json ]; then
+            echo "FOUND package-lock.json ($(wc -c < package-lock.json) bytes)"
+            head -5 package-lock.json
+          else
+            echo "MISSING package-lock.json"
+          fi
+          echo "::endgroup::"
+
       - name: Install dependencies
         run: npm ci
 
@@ -88,6 +124,24 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'npm'
+
+      - name: Debug — runner state before npm ci
+        run: |
+          echo "::group::pwd + ref"
+          pwd
+          git rev-parse HEAD
+          echo "::endgroup::"
+          echo "::group::root listing"
+          ls -la
+          echo "::endgroup::"
+          echo "::group::lockfile check"
+          if [ -f package-lock.json ]; then
+            echo "FOUND package-lock.json ($(wc -c < package-lock.json) bytes)"
+            head -5 package-lock.json
+          else
+            echo "MISSING package-lock.json"
+          fi
+          echo "::endgroup::"
 
       - name: Install dependencies
         run: npm ci
@@ -112,6 +166,24 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: 'npm'
+
+      - name: Debug — runner state before npm ci
+        run: |
+          echo "::group::pwd + ref"
+          pwd
+          git rev-parse HEAD
+          echo "::endgroup::"
+          echo "::group::root listing"
+          ls -la
+          echo "::endgroup::"
+          echo "::group::lockfile check"
+          if [ -f package-lock.json ]; then
+            echo "FOUND package-lock.json ($(wc -c < package-lock.json) bytes)"
+            head -5 package-lock.json
+          else
+            echo "MISSING package-lock.json"
+          fi
+          echo "::endgroup::"
 
       - name: Install dependencies
         run: npm ci
@@ -145,6 +217,28 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ inputs.app-name }}-${{ inputs.diff-environment }}-deployer
           aws-region: ${{ inputs.aws-region }}
+
+      - name: Debug — runner state before npm ci
+        run: |
+          echo "::group::pwd + ref"
+          pwd
+          git rev-parse HEAD
+          echo "::endgroup::"
+          echo "::group::root listing"
+          ls -la
+          echo "::endgroup::"
+          echo "::group::infra listing"
+          ls -la infra || echo "(no infra dir)"
+          echo "::endgroup::"
+          echo "::group::lockfile check"
+          for f in package-lock.json infra/package-lock.json; do
+            if [ -f "$f" ]; then
+              echo "FOUND $f ($(wc -c < "$f") bytes)"
+            else
+              echo "MISSING $f"
+            fi
+          done
+          echo "::endgroup::"
 
       - name: Install app dependencies
         run: npm ci
