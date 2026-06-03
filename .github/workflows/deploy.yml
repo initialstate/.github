@@ -55,7 +55,7 @@ jobs:
           cache: 'npm'
 
       - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           # Role naming convention: {app-name}-{environment}-deployer
           # Created by BruceSvelteDeployerRolesStack (or equivalent in your repo)
